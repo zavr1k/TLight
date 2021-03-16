@@ -66,5 +66,6 @@ def drop_data(request):
 
 
 def index(request):
-    posts = Post.objects.select_related('user_id').only('user_id__name', 'title', 'body')
+    posts = Post.objects.select_related('user_id').\
+        only('user_id__name', 'title', 'body')
     return render(request, 'index.html', {'posts': posts})
