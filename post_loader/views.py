@@ -1,7 +1,7 @@
 import requests
 from django.shortcuts import render, redirect
-from . import models
 
+from .models import Post, User, Company, Address
 
 USER_DATA = 'http://jsonplaceholder.typicode.com/users'
 POST_DATA = 'http://jsonplaceholder.typicode.com/posts'
@@ -14,7 +14,7 @@ def get_data(url):
 def load_users(data):
     users = get_data(data).json()
     for user in users:
-        address = models.Address()
+        address = Address()
         address.city = user['address']['city']
         address.street = user['address']['street']
         address.suite = user['address']['suite']
@@ -23,13 +23,13 @@ def load_users(data):
         address.lng = user['address']['geo']['lng']
         address.save()
 
-        company = models.Company()
+        company = Company()
         company.name = user['company']['name']
         company.catchPhrase = user['company']['catchPhrase']
         company.bs = user['company']['bs']
         company.save()
 
-        u = models.User()
+        u = User()
         u.id = user['id']
         u.name = user['name']
         u.username = user['username']
@@ -44,8 +44,8 @@ def load_users(data):
 def load_posts(data):
     posts = get_data(data).json()
     for post in posts:
-        p = models.Post()
-        p.user_id = models.User.objects.get(id=post['userId'])
+        p = Post()
+        p.user_id = User.objects.get(id=post['userId'])
         p.title = post['title']
         p.body = post['body']
         p.save()
@@ -58,13 +58,13 @@ def load_data(request):
 
 
 def drop_data(request):
-    models.User.objects.all().delete()
-    models.Address.objects.all().delete()
-    models.Company.objects.all().delete()
-    models.Post.objects.all().delete()
+    User.objects.all().delete()
+    Address.objects.all().delete()
+    Company.objects.all().delete()
+    Post.objects.all().delete()
     return redirect('/')
 
 
 def index(request):
-    posts = models.Post.objects.select_related('user_id').only('user_id__name', 'title', 'body')
+    posts = Post.objects.select_related('user_id').only('user_id__name', 'title', 'body')
     return render(request, 'index.html', {'posts': posts})
